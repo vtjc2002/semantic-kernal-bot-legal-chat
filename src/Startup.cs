@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+
 using Azure;
-using Azure.AI.FormRecognizer.DocumentAnalysis;
 using Azure.AI.OpenAI;
 using Azure.Identity;
 using Azure.Search.Documents;
-using Azure.Storage;
 using Azure.Storage.Blobs;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Bot.Builder;
@@ -20,8 +20,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
-using Microsoft.SemanticKernel.Connectors.OpenAI;
-using Microsoft.WindowsAzure.Storage.Auth;
+
 using Services;
 
 namespace Microsoft.BotBuilderSamples
@@ -38,8 +37,6 @@ namespace Microsoft.BotBuilderSamples
             services.AddSingleton(configuration);
 
             services.AddHttpClient<DirectLineService>();
-            if (!configuration.GetValue<string>("SPEECH_API_ENDPOINT").IsNullOrEmpty())
-                services.AddSingleton(new SpeechService(new System.Net.Http.HttpClient(), configuration.GetValue<string>("SPEECH_API_ENDPOINT"), configuration.GetValue<string>("SPEECH_API_KEY")));
 
             DefaultAzureCredential azureCredentials;
             if (configuration.GetValue<string>("MicrosoftAppType") == "UserAssignedMSI")

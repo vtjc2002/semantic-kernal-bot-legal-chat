@@ -1,37 +1,31 @@
-using System.ComponentModel;
-using System.Threading.Tasks;
-using System.Linq;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
 
-using Microsoft.SemanticKernel;
-using Microsoft.BotBuilderSamples;
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Schema;
-using Microsoft.SemanticKernel.Connectors.OpenAI;
-
-using Azure.AI.OpenAI;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
-using Models;
-using System;
-using OpenAI;
+
+using Microsoft.Bot.Builder;
+using Microsoft.Bot.Schema;
+using Microsoft.BotBuilderSamples;
+using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 
-
+using Models;
 
 namespace Plugins;
 public class FindBuyerSellerPlugin
 {
-    private readonly OpenAIClient _aoaiClient;
     private readonly SearchClient _searchClient;
     private readonly AzureOpenAITextEmbeddingGenerationService _embeddingClient;
     private readonly string _searchSemanticConfig;
     private ITurnContext<IMessageActivity> _turnContext;
     private ConversationData _conversationData;
 
-    public FindBuyerSellerPlugin(ConversationData conversationData, ITurnContext<IMessageActivity> turnContext, OpenAIClient aoaiClient, SearchClient searchClient, AzureOpenAITextEmbeddingGenerationService embeddingClient, string searchSemanticConfig)
+    public FindBuyerSellerPlugin(ConversationData conversationData, ITurnContext<IMessageActivity> turnContext, SearchClient searchClient, AzureOpenAITextEmbeddingGenerationService embeddingClient, string searchSemanticConfig)
     {
-        _aoaiClient = aoaiClient;
         _searchClient = searchClient;
         _embeddingClient = embeddingClient;
         _searchSemanticConfig = searchSemanticConfig;
@@ -46,6 +40,7 @@ public class FindBuyerSellerPlugin
     /// <param name="agreement"></param>
     /// <returns></returns>
     [KernelFunction, Description("Find information about the buyer or seller, seller or buyer law firms, and the counsel names.")]
+    [return: Description("Include address and names if available.")]
     public async Task<string> FindInfoAsync([Description("File name of the agreement")] string agreement)
     {
         await _turnContext.SendActivityAsync($"Searching ...{@agreement}");

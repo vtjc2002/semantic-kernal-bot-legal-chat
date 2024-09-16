@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text.Json;
 
 
 using Azure.AI.OpenAI;
@@ -17,13 +16,12 @@ using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Identity.Client;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 
 using Plugins;
-using Services;
-using Microsoft.Identity.Client;
 
 
 namespace Microsoft.BotBuilderSamples
@@ -101,9 +99,9 @@ namespace Microsoft.BotBuilderSamples
                     .Build();
 
             // Import the plugins
-            kernel.ImportPluginFromObject(new GetAgreementFileNamePlugin(conversationData, turnContext, _aoaiClient, _searchClient, _embeddingsClient, _searchSemanticConfig), "GetAgreementFileNamePlugin");
-            kernel.ImportPluginFromObject(new FindBuyerSellerPlugin(conversationData, turnContext, _aoaiClient, _searchClient, _embeddingsClient, _searchSemanticConfig), "FindBuyerSellerPlugin");
-            kernel.ImportPluginFromObject(new SearchAgreementPlugin(conversationData, turnContext, _aoaiClient, _searchClient, _embeddingsClient, _searchSemanticConfig), "SearchAgreementPlugin");
+            kernel.ImportPluginFromObject(new GetAgreementFileNamePlugin(conversationData, turnContext, _searchClient, _embeddingsClient, _searchSemanticConfig), "GetAgreementFileNamePlugin");
+            kernel.ImportPluginFromObject(new FindBuyerSellerPlugin(conversationData, turnContext, _searchClient, _embeddingsClient, _searchSemanticConfig), "FindBuyerSellerPlugin");
+            kernel.ImportPluginFromObject(new SearchAgreementPlugin(conversationData, turnContext, _searchClient, _embeddingsClient, _searchSemanticConfig), "SearchAgreementPlugin");
             kernel.ImportPluginFromObject(new LoadAgreementPdfPlugin(conversationData, turnContext, _blobServiceClient, _blobContainer ), "LoadAgreementPdfPlugin");
 
             // Use Auto Function calling setting to let llm decide which Plugin to invoke.
