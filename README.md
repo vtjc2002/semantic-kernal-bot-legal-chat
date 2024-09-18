@@ -1,4 +1,4 @@
-# Multi-turn Gen AI Chat Bot On Complex Documents  
+# Multi-turn Gen AI Chat Bot On Complex Documents  [DRAFT]
 
 Today, we are going to explore how to utilize the power of gen ai to help answer questions on complex documents.  In this example, we will use publicly available SEC filings to demonstrate how to build a multi-turn chatbot that can answer questions on complex purchase agreements.  We will use the OpenAI GPT4-o model to build the chatbot.  The chatbot will be able to answer questions on the document and provide additional context to the user.  We will also explore how to handle multi-turn conversations and maintain context across multiple interactions.
 
@@ -8,7 +8,7 @@ Today, we are going to explore how to utilize the power of gen ai to help answer
 3. [Data](#data)
 4. [Setup](#setup)
 5. [Another Approach](#another-approach)
-6. [The Code](#the-code)
+6. [The Flow](#the-flow)
 
 
 ## Introduction
@@ -46,21 +46,39 @@ You will need an Azure Storage account to hold the SEC filings.
 Do upload multiple files in order to see the multi-turn chatbot in action. 
 
 ## Another Approach
-I do want to stress that this is _one_ approach of solving the problem.  You can do another approach where you pre-process the documents and extract the information you need or enrich the document with metadata for better AI Search result.  This is a more deterministic approach and you can use the RAG model to answer questions.  However, the downside is that you have to know what you are looking for.  The multi-turn chatbot approach is more flexible and can handle more complex questions.  The downside is that it is more complex to implement.  You can also use a combination of both approaches to get the best of both worlds.  The choice is yours.
+I do want to stress that this is _one_ approach of solving the problem.  You can do another approach where you pre-process the documents and extract the information you need or enrich the document with metadata for better AI Search result.  This is a more deterministic approach and you can use the RAG model to answer questions.  However, the downside is that you have to know what you are looking for.  The multi-turn chatbot approach is more flexible and can handle more complex questions.  The downside is that it is more complex to implement.  Perhaps even summarize the document to reduce noises (like eliminate table of content, appendix, taxonomy) prior to document ingestion.  You can also use a combination of both approaches to get the best of both worlds.  The choice is yours.
 
-## The Code
-
-### Prompting
+## The Flow
 The prompting is done in 2 places.  The first is appsettings.json where you set the system prompts instructing the LLM what to do.
 
 Semantic Kernel's native functions allow different custom code to be called.  The kernel with AutoInvokeKernelFunctions will call the right function based on the user AND system input.
+
+### System Prompt
 
 I broke down system prompt into multiple variables for easier reading.
 They are concatenated in the code.
 
 ```json
  "PROMPT_SYSTEM_MESSAGE": "You are legal document assistant that helps find answer in stock purchase agreement / Securites Purchase Agreement / Asset Purchase Agreement.  These legal files are complex in nature so use your knowledge in legal to answer the user's questions. ",
-  "PROMPT_SYSTEM_MESSAGE_2":"Answer the questions as accurately as possible using the provided functions. Only use one function at a time. "
+ "PROMPT_SYSTEM_MESSAGE_2":"Answer the questions as accurately as possible using the provided functions. Only use one function at a time. ",
+ "PROMPT_SYSTEM_MESSAGE_3":"[IMPORTANT] You will need file name to help answer the questions. And only answer questions from provided functions, anything else please say 'I can't help you with that'."
+  
  ````
 
  Now we told kernel and LLM to call provided functions and only call one at a time, let's look at the native functions.
+
+### Native Functions - File Name Search
+
+In the system prompt, we told the LLM that a file name is needed to help answer the questions.  If there is no file name in the chat history, the function GetAgreementFileNamePlugin is called to find the file name in the user input.  The function is called in the kernel and the result is passed to the LLM and saved into the chat history for later use.
+
+Notice that the input _agreement name_ is passed to the function by the LLM.  We call the AI Search index and try to locate the chunk that has matching agreement name.
+We also use scoring threshold to make sure we are getting the right document.
+
+__*Note that it only returns the first match.  So if you need to handle multiple matches, you need to modify the code and return file names for user to choose via SuggestedActions__
+
+
+### Native Functions - Seller / Buyer Info and Lawn Firms Search
+
+### Native Functions - Other Questions Search
+
+### Native Functions - Load Entire Document Search

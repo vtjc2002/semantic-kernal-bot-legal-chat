@@ -25,6 +25,10 @@ public class GetAgreementFileNamePlugin
     private ITurnContext<IMessageActivity> _turnContext;
     private ConversationData _conversationData;
 
+    // Minimum score threshold to consider the search result as relevant.  This is used to filter out partial matches for file name.
+    // You should play with this threshold to get the best results for your data.
+    private readonly double _mimimumScoreThreshold = 0.6;
+
     public GetAgreementFileNamePlugin(ConversationData conversationData, ITurnContext<IMessageActivity> turnContext, SearchClient searchClient, AzureOpenAITextEmbeddingGenerationService embeddingClient, string searchSemanticConfig)
     {
         _searchClient = searchClient;
@@ -41,7 +45,7 @@ public class GetAgreementFileNamePlugin
     /// <param name="agreement"></param>
     /// <returns></returns>
     [KernelFunction, Description("Find the agreement's file name.")]
-    [return: Description("The file name of the agreement with file extension. For example, 'Agreement.pdf'.)]
+    [return: Description("The file name of the agreement with file extension. For example, 'Agreement.pdf'.")]
     public async Task<string> FindInfoAsync([Description("Name of the agreement. Do not include the word agreement or contract in the response.")] string agreement)  
     {
         await _turnContext.SendActivityAsync($"Finding the agreement file info...");
@@ -69,11 +73,13 @@ public class GetAgreementFileNamePlugin
 
         try
         {
+            // only the result must be higher than the threshold to avoid partial matches
             var response = await _searchClient.SearchAsync<RetrievedPassage>(searchOptions);
             var searchResults = response.Value.GetResults();
-            if (searchResults.Count() == 0)
+            if (searchResults.Count() == 0 || searchResults.First().Score < _mimimumScoreThreshold)
                 return "No agreement found.";
-            var filename = response.Value.GetResults().First().Document.Title;
+
+            var filename = searchResults.First().Document.Title;
 
             //save to conversation data to be used for later conversation
             _conversationData.History.Add(new ConversationTurn { Role = "assistant", Message = $"agreement file name is {@filename}" });

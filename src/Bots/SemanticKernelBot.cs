@@ -22,6 +22,7 @@ using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 
 using Plugins;
+using Microsoft.Extensions.Logging;
 
 
 namespace Microsoft.BotBuilderSamples
@@ -39,6 +40,8 @@ namespace Microsoft.BotBuilderSamples
         private readonly List<string> _suggestedQuestions;
         private readonly string _searchSemanticConfig, _blobContainer;
 
+        private readonly ILogger<PromptFilter> _logger;
+
 
         public SemanticKernelBot(
             IConfiguration config,
@@ -48,7 +51,8 @@ namespace Microsoft.BotBuilderSamples
             AzureOpenAITextEmbeddingGenerationService embeddingsClient,
             T dialog,
             SearchClient searchClient = null,
-            BlobServiceClient blobServiceClient = null) :
+            BlobServiceClient blobServiceClient = null,
+            ILogger<PromptFilter> logger = null) :
             base(config, conversationState, userState, dialog)
         {
             _aoaiModel = config.GetValue<string>("AOAI_GPT_MODEL");
@@ -67,6 +71,7 @@ namespace Microsoft.BotBuilderSamples
             _blobServiceClient = blobServiceClient;
             _embeddingsClient = embeddingsClient;
             _blobContainer = config.GetValue<string>("BLOB_CONTAINER_NAME");
+            _logger = logger;
 
         }
 
@@ -103,6 +108,8 @@ namespace Microsoft.BotBuilderSamples
             kernel.ImportPluginFromObject(new FindBuyerSellerPlugin(conversationData, turnContext, _searchClient, _embeddingsClient, _searchSemanticConfig), "FindBuyerSellerPlugin");
             kernel.ImportPluginFromObject(new SearchAgreementPlugin(conversationData, turnContext, _searchClient, _embeddingsClient, _searchSemanticConfig), "SearchAgreementPlugin");
             kernel.ImportPluginFromObject(new LoadAgreementPdfPlugin(conversationData, turnContext, _blobServiceClient, _blobContainer ), "LoadAgreementPdfPlugin");
+
+            kernel.PromptRenderFilters.Add(new PromptFilter(_logger));
 
             // Use Auto Function calling setting to let llm decide which Plugin to invoke.
             OpenAIPromptExecutionSettings settings = new() { ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions };
