@@ -6,7 +6,7 @@ Today, we are going to explore how to utilize the power of gen ai to help answer
 1. [Introduction](#introduction)
 2. [Architecture](#architecture)
 3. [Data](#data)
-4. [Setup](#setup)
+4. [Deployment](#deployment)
 5. [Another Approach](#another-approach)
 6. [The Flow](#the-flow)
 
@@ -29,7 +29,10 @@ Another example of challenge is the representing law firms.  You have to find th
 ![representing law firms](/img/buyer_seller_law_firm.png)
 Seller law firm is Heller Ehrman LLP and Buyer law firm is Greenberg Traurig, LLP.  The attention to persons are the representatives of the law firms.
 
-## Setup
+## Deployment
+
+Use azd up to deploy the necessary infrastructure.  Refer to [gen-ai-in-a-box](https://github.com/Azure-Samples/gen-ai-bot-in-a-box/tree/main)
+on how to run the deployment.  The deployment will create following resources:
 
 ### Azure AI Studio / Azure Open AI
 You will need to deploy a LLM (I am using gpt4-o) and a embedding model (I am using text-embedding-3-large).  For the sake of simplicity, we will be using API for authentication. For production, please use managed identity where you can.
