@@ -115,7 +115,7 @@ resource appService 'Microsoft.Web/sites@2022-09-01' = {
         }
         {
           name: 'PROMPT_SYSTEM_MESSAGE'
-          value: 'You are legal document assistant that helps find answer in stock purchase agreement / Securites Purchase Agreement / Asset Purchase Agreement.  These legal files are complex in nature so use your knowledge in legal to answer the user's questions.'
+          value: 'You are legal document assistant that helps find answer in stock purchase agreement / Securites Purchase Agreement / Asset Purchase Agreement.  These legal files are complex in nature so use your knowledge in legal to answer the user`s questions.'
         }
         {
           name: 'PROMPT_SYSTEM_MESSAGE_2'
@@ -156,6 +156,14 @@ resource appService 'Microsoft.Web/sites@2022-09-01' = {
         {
           name: 'SSO_MESSAGE_FAILED'
           value: 'Log in failed. Type anything to retry.'
+        }
+        {
+          name:'BLOB_CONNECTION_STRING'
+          value:''
+        }
+        {
+          name:'BLOB_CONTAINER_NAME'
+          value:''
         }
 
 
